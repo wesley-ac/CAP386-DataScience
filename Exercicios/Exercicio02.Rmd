@@ -1,5 +1,5 @@
 
-##Exercício Semana 2 - 30/06/2017
+# Exercício Semana 2 - 30/06/2017
 
-## 1) Understanding and Fixing Code
-## 1.1)
+### 1) Understanding and Fixing Code
+### 1.1) Fix the part of the code that shows the cold months in Baltimore (Lecture02/02-PrimitiveTypes) so we know which are those months.
