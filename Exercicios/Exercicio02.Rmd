@@ -2,4 +2,67 @@
 # Exercício Semana 2 - 30/06/2017
 
 ### 1) Understanding and Fixing Code
-### 1.1) Fix the part of the code that shows the cold months in Baltimore (Lecture02/02-PrimitiveTypes) so we know which are those months.
+#### 1.1) Fix the part of the code that shows the cold months in Baltimore (Lecture02/04-OperationsWithVectors) so we know which are those months.
+##### R:) O Problema encontrado foi que não houve a definição dos *_nomes_* dos meses para a variavel `tempLo`, uma forma de corrigir é relaizar :
+
+```r
+tempLo <- c(23.5,26.1,33.6,42.0,51.8,60.8,65.8,63.9,56.6,43.7,34.7,27.3)
+months <- c("Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec")
+names(tempLo) <- months
+tempLo
+```
+Assim quando se realizar a expressão abaixo o resultado retornará com os nomes dos meses.
+``` r
+tooCold <- (((5/9) * (tempLo - 32)) < 0)
+tooCold
+```
+
+#### 1.2) What would happen if we still had a NA on the vector for the temperatures in SJC (Lecture02/05-Factors)?
+
+```r
+avgTempSJC <- c(22.2,22.4,21.6,19.6,17,16.1,15.6,17.1,18.8,19.4,20.3,21.4)
+names(avgTempSJC) <- c("Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec")
+```
+
+##### R:) Se houvesse `NA` em `avgTempSJC` o resultado da expressão abaixo seria `FALSE` para os locais com `NA`, como observado a seguir:
+
+```r
+avgTempSJC <- c(22.2,NA,21.6,19.6,17,16.1,NA,17.1,18.8,19.4,20.3,NA)
+names(avgTempSJC) <- c("Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec")
+
+descTempSJC <- vector(length = length(avgTempSJC))
+descTempSJC[avgTempSJC>20] <- 'Hot' 
+descTempSJC[(avgTempSJC >= 18) & (avgTempSJC <= 20)] <- 'Mild'
+descTempSJC[avgTempSJC<18] <- 'Cool' 
+descTempSJC
+```
+
+#### 1.3) What happens if we try to run sjcTemps["Jan":"Jul",c(1,3)]? Why? (see Lecture02/06-DataFrames).
+
+O Data Frame sjcTemps é representado por:
+```r
+maxTempSJC <- c(29.7,30.1,29.5,27.3,25.1,24.3,24.1,26.2,27.2,27.3,28,28.7)
+avgTempSJC <- c(22.2,22.4,21.6,19.6,17,16.1,15.6,17.1,18.8,19.4,20.3,21.4)
+minTempSJC <- c(16.2,16.5,15.7,13.2,10.1,8.9,8.2,9.9,11.9,13.4,14.2,15.3)
+months <- c("Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec")
+sjcTemps <- data.frame(Max=maxTempSJC,Avg=avgTempSJC,Min=minTempSJC,row.names = months)
+sjcTemps
+```
+
+##### R:) Se aplicassemos a expressão `sjcTemps["Jan":"Jul",c(1,3)]` retornaria erro pois o R não interpreta que os caracteres estejam em um intervalo:
+
+```r
+sjcTemps["Jan":"Jul",c(1,3)]
+```
+
+Entretanto, se alterar os `:` para `,` a expressão irá retornar os valores de Jan e Jul
+```r
+sjcTemps["Jan":"Jul",c(1,3)]
+```
+Porém se o objetivo é retornar os valores entre Jan e Jul, o indicado seria incluir o intervalo das linhas `1:6`
+```r
+sjcTemps[c(1:6),c(1,3)]
+```
+
+
+
