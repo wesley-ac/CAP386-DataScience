@@ -64,5 +64,57 @@ Porém se o objetivo é retornar os valores entre Jan e Jul, o indicado seria in
 sjcTemps[c(1:6),c(1,3)]
 ```
 
+#### 1.4) We can change Data Frames with `sjcTemps3["Aug",] <- c(1,2,3)` and `sjcTemps3["Jul",] <- sjcTemps3["Jul",]+c(3,4)` but we cannot change with `sjcTemps3["Jul",] <- c(3,4)`. Why? (see Lecture02/06-DataFrames).
+
+##### R:) A expressão `sjcTemps3["Aug",] <- c(1,2,3)` altera os valores pois a quantidade de valores da tabela é a mesma da tupla a ser inserida; A expressão `sjcTemps3["Jul",] <- sjcTemps3["Jul",]+c(3,4)` passa pela condicionante pois esta dentro de uma operação. Porém quando se realiza a expressão `sjcTemps3["Jul",] <- c(3,4)` o R reporta um erro de tamanho da tupla para a regra da reciclagem.
+
+#### 1.4) Run some examples that show that the recycling rule reuses the smaller (shorter) vector.
+
+##### R:) 
+```r
+a <- c(0,0,0,0,0,0)
+a
+```
+Exemplo 1:
+```r
+b <- a
+b <- c(1)
+b
+```
+Exemplo 2:
+```r
+d <- a
+d <- c(2,2)
+d
+```
+Exemplo 3:
+```r
+e <- a
+e <- c(3,3,3)
+e
+```
+Exemplo 4:
+```r
+f <- a 
+f <- c(4,4,4,4)
+f
+```
+
+#### 1.5) What does stringsAsFactors=FALSE in read.csv() do? Why do we need it? (see Lecture02/06-DataFrames).
+##### R) A função `stringsAsFactors=FALSE` transforma as colunas do tipo string em fatores, com isso os meses seriam transformados em fatores e ordenando-os de forma alfabética, prejudicando a apresentação da tabela e outras formas de manipulação.
+
+#### 2) The average monthly rainfall in Baltimore is, in inches: 3.47, 3.02, 3.93, 3.00, 3.89, 3.43, 3.85, 3.74, 3.98, 3.16, 3.12, 3.35 (http://www.rssweather.com/climate/Maryland/Baltimore/) Write an R program that shows this in millimeters (one inch = 25.4 mm), add names to the vector, and calculates its average, minimum and maximum.
+
+```r
+precipita_inch <- c(3.47, 3.02, 3.93, 3.00, 3.89, 3.43, 3.85, 3.74, 3.98, 3.16, 3.12, 3.35)
+meses <- c("Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec")
+
+precipita_mm <- precipita_inch * 25.4
+names(precipita_mm) <- meses
+prec_max <- max(precipita_mm)
+prec_min <- min(precipita_mm)
+prec_avg <- mean(precipita_mm)
+
+```
 
 
