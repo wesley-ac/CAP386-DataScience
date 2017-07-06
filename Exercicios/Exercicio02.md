@@ -1,7 +1,5 @@
-Exercicio\_02
-================
-
 Exercício Semana 2 - 30/06/2017
+================
 ===============================
 
 ### 1) Understanding and Fixing Code
