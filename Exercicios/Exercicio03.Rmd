@@ -5,11 +5,15 @@ output: github_document
 
 ### 1)The	“hotdog” variable for	the	“Hot	Dogs	in	Baltimore”	example	can	be	better	defined.
 
-#### R.) 
+#### R.)Existem duas possibilidades, a primeira seria incluir todas as possíveis combinações de maiuscula e minuscula de Hot Dog que existem, e a outra seria utilizar o 'ignore.case = TRUE' 
+Caso 1
+```{r}
+grepl("[Hot dog|Hot Dog|Hot Dogs|Hot dogs]",bVendors$ItemsSold)
+
+```
 
 ```{r}
-
-
+grepl("Hot dog",bVendors$ItemsSold,ignore.case = TRUE)
 
 ```
 
@@ -17,6 +21,9 @@ output: github_document
 ####R.)
 
 ```{r}
+
+grepl("Pizza",bVendors$ItemsSold,ignore.case = TRUE)
+
 
 ```
 
