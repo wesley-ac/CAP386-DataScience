@@ -1,0 +1,53 @@
+---
+title: "Exercício 03 - 07/07/2017"
+output: github_document
+---
+
+### 1)The	“hotdog” variable for	the	“Hot	Dogs	in	Baltimore”	example	can	be	better	defined.
+
+#### R.) 
+
+```{r}
+
+
+
+```
+
+### 2) I	prefer	Pizza. Create	a	“pizza”	variable	then
+####R.)
+
+```{r}
+
+```
+
+### 3) Get	the	name	of	the	town	for	the	“Hot	Dogs	in	Baltimore”.
+#### R.)
+
+
+```{r}
+
+Teste$TownZ = do.call(rbind,strsplit(Teste$location,"\n"))[,1]
+Teste$Citty = strtrim(Teste$Town,nchar(Teste$Town)-6)
+Teste$TownZ = NULL
+
+
+```
+
+### 4)Complete	the	Codebook	for	the	“Hot	Dogs	in	Baltimore”	example.
+
+```{r}
+
+Teste$Town = do.call(rbind,strsplit(Teste$location,"\n"))[,1]
+Teste$Citty = strtrim(Teste$Town,nchar(Teste$Town)-6)
+Teste$ZIP = substring(Teste$Town,nchar(Teste$Town)-4,nchar(Teste$Town))
+
+Teste$LatLong = do.call(rbind,strsplit(Teste$location,"\n"))[,2]
+Teste$LatLong = gsub("\\(|)","",Teste$LatLong)
+
+Teste$Lat = as.numeric(do.call(rbind,strsplit(Teste$LatLong,","))[,1])
+Teste$Long = as.numeric(do.call(rbind,strsplit(Teste$LatLong,","))[,2])
+
+
+```
+
+
