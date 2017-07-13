@@ -1,5 +1,5 @@
 ---
-title: "Exercício 03 - 07/07/2017"
+title: "Lista de Exercício 03 - 07/07/2017"
 output: github_document
 ---
 
@@ -10,7 +10,7 @@ output: github_document
 
 
 
-Exercício 01
+Questão 01
 ------------
 ###The	“hotdog” variable for	the	“Hot	Dogs	in	Baltimore”	example	can	be	better	defined.
 
@@ -26,7 +26,7 @@ grepl("Hot dog|Hot Dogs",bVendors$ItemsSold,ignore.case = TRUE)
 
 ```
 
-Exercício 02
+Questão 02
 ------------
 ### Create	a	“pizza”	variable	then
 ####R.)
@@ -37,7 +37,7 @@ grepl("Pizza",bVendors$ItemsSold,ignore.case = TRUE)
 
 
 ```
-Exercício 03
+Questão 03
 ------------
 ### Get	the	name	of	the	town	for	the	“Hot	Dogs	in	Baltimore”.
 #### R.)
@@ -51,7 +51,7 @@ bVendors$Town[grep("Hot Dog|Hot Dogs",bVendors$ItemsSold,ignore.case = TRUE)]
 
 
 ```
-Exercício 04
+Questão 04
 ------------
 ###Complete	the	Codebook	for	the	“Hot	Dogs	in	Baltimore”	example.
 
