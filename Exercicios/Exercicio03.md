@@ -1,4 +1,4 @@
-Exercício 03 - 07/07/2017
+Lista de Exercício 03 - 07/07/2017
 ================
 
 -   [Exercício 01](#Exercicio-01)
