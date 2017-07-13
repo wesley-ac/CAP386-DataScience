@@ -3,10 +3,10 @@ title: "Exercício 03 - 07/07/2017"
 output: github_document
 ---
 
--   [Exercício 01](#Exercicio-01)
--   [Exercício 02](#Exercicio-02)
--   [Exercício 03](#Exercicio-03)
--   [Exercício 04](#Exercicio-04)
+-   [Exercício 01](#Exercicio_01)
+-   [Exercício 02](#Exercicio_02)
+-   [Exercício 03](#Exercicio_03)
+-   [Exercício 04](#Exercicio_04)
 
 
 
