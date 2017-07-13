@@ -3,21 +3,32 @@ title: "Exercício 03 - 07/07/2017"
 output: github_document
 ---
 
-### 1)The	“hotdog” variable for	the	“Hot	Dogs	in	Baltimore”	example	can	be	better	defined.
+-   [Exercício 01](#Exercicio-01)
+-   [Exercício 02](#Exercicio-02)
+-   [Exercício 03](#Exercicio-03)
+-   [Exercício 04](#Exercicio-04)
+
+
+
+Exercício 01
+------------
+###The	“hotdog” variable for	the	“Hot	Dogs	in	Baltimore”	example	can	be	better	defined.
 
 #### R.)Existem duas possibilidades, a primeira seria incluir todas as possíveis combinações de maiuscula e minuscula de Hot Dog que existem, e a outra seria utilizar o 'ignore.case = TRUE' 
 Caso 1
 ```{r}
-grepl("[Hot dog|Hot Dog|Hot Dogs|Hot dogs]",bVendors$ItemsSold)
+grep("Hot dog|Hot Dog| Hot dogs| Hot Dogs",bVendors$ItemsSold)
 
 ```
 
 ```{r}
-grepl("[Hot dog|Hot Dogs]",bVendors$ItemsSold,ignore.case = TRUE)
+grepl("Hot dog|Hot Dogs",bVendors$ItemsSold,ignore.case = TRUE)
 
 ```
 
-### 2) I	prefer	Pizza. Create	a	“pizza”	variable	then
+Exercício 02
+------------
+### Create	a	“pizza”	variable	then
 ####R.)
 
 ```{r}
@@ -26,24 +37,25 @@ grepl("Pizza",bVendors$ItemsSold,ignore.case = TRUE)
 
 
 ```
-
-### 3) Get	the	name	of	the	town	for	the	“Hot	Dogs	in	Baltimore”.
+Exercício 03
+------------
+### Get	the	name	of	the	town	for	the	“Hot	Dogs	in	Baltimore”.
 #### R.)
 
 
 ```{r}
-Teste = bVendors
+bVendors$TownZ = do.call(rbind,strsplit(bVendors$location,"\n"))[,1]
+bVendors$Town = strtrim(bVendors$Town,nchar(bVendors$Town)-6)
+bVendors$TownZ = NULL
+bVendors$Town[grep("Hot Dog|Hot Dogs",bVendors$ItemsSold,ignore.case = TRUE)]
 
-Teste$TownZ = do.call(rbind,strsplit(Teste$location,"\n"))[,1]
-Teste$Town = strtrim(Teste$Town,nchar(Teste$Town)-6)
-Teste$TownZ = NULL
-head(Teste$Town)
 
 ```
+Exercício 04
+------------
+###Complete	the	Codebook	for	the	“Hot	Dogs	in	Baltimore”	example.
 
-### 4)Complete	the	Codebook	for	the	“Hot	Dogs	in	Baltimore”	example.
-
-1° - Importando os dados de entrada
+Passo 1 - Importando os dados de entrada
 
 ```{r}
 #Armazenando a URL em uma variavel 
@@ -67,7 +79,7 @@ bVendors <- read.csv(file="./TempData/BFood.csv", header=TRUE, sep=",", stringsA
 str(bVendors) # Mostra um pedaço do arquivo importado
 ```
 
-2 - Linpando Dados Vazios e desnecessários. Renomeando Colunas
+Passo 2 - Linpando Dados Vazios, desnecessários e Renomeando Colunas
 ```{r}
 #Excluindo os dados de ID e ST
 bVendors$Id = NULL
@@ -76,28 +88,41 @@ bVendors$St = NULL
 #Renomeando a coluna Location1
 names(bVendors)[names(bVendors) == "Location.1"] <- "location"
 
+str(bVendors)
 ```
 
-3 - Organizando os dados de Localização
+Passo 3 - Organizando os dados de Localização
 
 ```{r}
 ##Dividindo a coluna de Localização em 4 partes, Town, ZipCode, Lat e Long
 # A primeira divisão é quebrar a coluna Location pelo separador '\n' e guardar a primeira parte
-Teste$TownZ = do.call(rbind,strsplit(Teste$location,"\n"))[,1]
+bVendors$TownZ = do.call(rbind,strsplit(bVendors$location,"\n"))[,1]
 
 #Retirar da string resultante o nome da Cidade (neste caso foi eliminado os 5 ultimos caracteres referente ao ZIP code)
-Teste$Town = strtrim(Teste$TownZ,nchar(Teste$Town)-6)
+bVendors$Town = strtrim(bVendors$TownZ,nchar(bVendors$Town)-6)
+
+cat("\nTowns: ", head(bVendors$Town))
 
 # Retirar da primeira parta da string location o ZIPcode (os últimos 5 caracteres)
-Teste$ZIP = substring(Teste$TownZ,nchar(Teste$Town)-4,nchar(Teste$Town))
+bVendors$ZIP = substring(bVendors$TownZ,nchar(bVendors$TownZ)-5)
+
+cat("\nZipCode: ", head(bVendors$ZIP))
 
 # Os dados de LAT LONG estão dentro de '()'. Assim foi necessário retirar esses caracteres da segunda parte do string
-Teste$LatLong = do.call(rbind,strsplit(Teste$location,"\n"))[,2]
-Teste$LatLong = gsub("\\(|)","",Teste$LatLong)
+bVendors$LatLong = do.call(rbind,strsplit(bVendors$location,"\n"))[,2]
+bVendors$LatLong = gsub("\\(|)","",bVendors$LatLong)
 
 # Dividiu a coluna de LatLong pelo separador ',' obtendo os resultados de LAT e LONG em colunas individuaizadas
-Teste$Lat = as.numeric(do.call(rbind,strsplit(Teste$LatLong,","))[,1])
-Teste$Long = as.numeric(do.call(rbind,strsplit(Teste$LatLong,","))[,2])
+bVendors$Lat = as.numeric(do.call(rbind,strsplit(bVendors$LatLong,","))[,1])
+bVendors$Long = as.numeric(do.call(rbind,strsplit(bVendors$LatLong,","))[,2])
+
+cat("\nLatitude: ", head(bVendors$Lat))
+cat("\nLongitude: ",head(bVendors$Long))
+
+#Eliminando colunas secundárias
+bVendors$location = NULL
+bVendors$TownZ = NULL
+bVendors$LatLong = NULL
 
 
 ```
