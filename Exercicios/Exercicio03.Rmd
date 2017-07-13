@@ -1,23 +1,31 @@
 ---
-title: "Lista de Exercício 03 - 07/07/2017"
+title: "Exercício 03 - 07/07/2017"
 output: github_document
 ---
 
--   [Questão 01](#questão-01)
--   [Questão 02](#questão-02)
--   [Questão 03](#questão-03)
--   [Questão 04](#questão-04)
+-   [Exercício 01](#Exercicio-01)
+-   [Exercício 02](#Exercicio-02)
+-   [Exercício 03](#Exercicio-03)
+-   [Exercício 04](#Exercicio-04)
 
 
 
-Questão 01
+Exercício 01
 ------------
 ###The	“hotdog” variable for	the	“Hot	Dogs	in	Baltimore”	example	can	be	better	defined.
 
 #### R.)Existem duas possibilidades, a primeira seria incluir todas as possíveis combinações de maiuscula e minuscula de Hot Dog que existem, e a outra seria utilizar o 'ignore.case = TRUE' 
+Abrindo o dado
+```{r}
+bVendors <- read.csv(file="./TempData/BFood.csv", header=TRUE, sep=",", stringsAsFactors=FALSE)
+
+```
+
+
+
 Caso 1
 ```{r}
-grep("Hot dog|Hot Dog| Hot dogs| Hot Dogs",bVendors$ItemsSold)
+grepl("Hot dog|Hot Dog| Hot dogs| Hot Dogs",bVendors$ItemsSold)
 
 ```
 
@@ -26,7 +34,7 @@ grepl("Hot dog|Hot Dogs",bVendors$ItemsSold,ignore.case = TRUE)
 
 ```
 
-Questão 02
+Exercício 02
 ------------
 ### Create	a	“pizza”	variable	then
 ####R.)
@@ -37,21 +45,22 @@ grepl("Pizza",bVendors$ItemsSold,ignore.case = TRUE)
 
 
 ```
-Questão 03
+Exercício 03
 ------------
 ### Get	the	name	of	the	town	for	the	“Hot	Dogs	in	Baltimore”.
 #### R.)
 
 
+
 ```{r}
-bVendors$TownZ = do.call(rbind,strsplit(bVendors$location,"\n"))[,1]
+bVendors$TownZ = do.call(rbind,strsplit(bVendors$Location.1,"\n"))[,1]
 bVendors$Town = strtrim(bVendors$Town,nchar(bVendors$Town)-6)
 bVendors$TownZ = NULL
 bVendors$Town[grep("Hot Dog|Hot Dogs",bVendors$ItemsSold,ignore.case = TRUE)]
 
 
 ```
-Questão 04
+Exercício 04
 ------------
 ###Complete	the	Codebook	for	the	“Hot	Dogs	in	Baltimore”	example.
 
