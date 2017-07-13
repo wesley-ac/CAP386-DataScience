@@ -1,5 +1,5 @@
 ---
-title: "Exercício 03 - 07/07/2017"
+title: "Lista de Exercício 03 - 07/07/2017"
 output: github_document
 ---
 
