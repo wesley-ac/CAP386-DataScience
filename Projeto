@@ -16,29 +16,65 @@ acre_ly = acre_lm.GetLayer()
 [xmax,xmin,ymax,ymin] = acre_ly.GetExtent()
 
 # Descobrindo os limites do BBox
-xmax = acre_bbox[0]
-xmin = acre_bbox[1]
-ymax = acre_bbox[2]
-ymin = acre_bbox[3]
-print("Xmax:{0:0.2f} \tXmin:{1:0.2f} \nYmax:{2:0.2f} \tYmin:{3:0.2f}".format(xmax,xmin,ymax,ymin)
+#xmax = acre_bbox[0]
+#xmin = acre_bbox[1]
+#ymax = acre_bbox[2]
+#ymin = acre_bbox[3]
+print("Xmax:{0:0.2f} \tXmin:{1:0.2f} \nYmax:{2:0.2f} \tYmin:{3:0.2f}".format(xmax,xmin,ymax,ymin))
 
 
 
-''' Descobrindo os Limites dos arquivos Raster'''
+#''' Descobrindo os Limites dos arquivos Raster '''
 
-nomearquivo = "D:/AMAZONIA_2000.tif" 
+ 
+nomearquivo = "D:/AMAZONIA_2000.tif"
 
 #Importanto os dados
 raster = gdal.Open(nomearquivo)
 
 # Encontrando os valores de BBox e resolução
 [xinic,resx,rotax,yinic,rotay,resy] = raster.GetGeoTransform()
-xinic = raster_bbox[0]
-yinic = raster_bbox[3]
-resx = raster_bbox[1]
-resy = raster_bbox[5]
+#xinic = raster_bbox[0]
+#yinic = raster_bbox[3]
+#resx = raster_bbox[1]
+#resy = raster_bbox[5]
 
 print("Xinic:{0:0.2f} \tResX:{1:0.6f} \nYinic:{2:0.2f} \tResY:{3:0.6f}".format(xinic,resx,yinic,resy))
+
+## Criando Grade-Celular do Bbox do ACRE
+import shapefile as shp
+import math
+
+minx,maxx,miny,maxy = -66.62, -73.99, -7.11, -11.15
+dx = (0.000269*400)
+dy = (0.000269*400)
+srid = 4326
+
+nx = int(math.ceil(abs(maxx - minx)/dx))
+ny = int(math.ceil(abs(maxy - miny)/dy))
+
+w = shp.Writer(shp.POLYGON)
+w.autoBalance = 1
+w.field("ID")
+id=0
+
+for i in range(ny):
+    for j in range(nx):
+        id+=1
+        vertices = []
+        parts = []
+        vertices.append([min(maxx+dx*j,minx),max(miny-dy*i,maxy)])
+        vertices.append([min(maxx+dx*(j+1),minx),max(miny-dy*i,maxy)])
+        vertices.append([min(maxx+dx*(j+1),minx),max(miny-dy*(i+1),maxy)])
+        vertices.append([min(maxx+dx*j,minx),max(miny-dy*(i+1),maxy)])
+        parts.append(vertices)
+        w.poly(parts)
+        w.record(id)
+
+
+w.save('polygon_grid')
+
+
 
 
 ''' Delimitando o BBOx para corte '''
@@ -56,4 +92,18 @@ print("Retangulo envolvente inicia na linha {0} e coluna {1}, com offset de {2} 
 mapbioma = raster.ReadAsArray(xoff=nrow,yoff=ncol,xsize=qtcol,ysize=qtrow) #lê o arquivo como um array
 
 
+## Separando nos 3 tipos de coberturas
+floresta = np.where(mapbioma == 1|2|3|4|5|6|7,1,0 )
+vegsec = np.where(mapbioma == 8, 1,0)
+agri = np.where(mapbioma == 14|15|16|17|18|19|20|28|21, 1,0)
+
+
+
+
+'''
+#for numero in range(0,17,1):
+    nomearquivo = str("D:/AMAZONIA_20{0:02d}_grd_focos.bin".format(numero))
+    print(nomearquivo)
+    raster = gdal.Open(nomearquivo)
+    mp_cobertura = raster.ReadAsArray(xoff, yoff, xsize, ysize, buf_obj, buf_xsize, buf_ysize, buf_type, resample_alg, callback, callback_data)
 
