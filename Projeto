@@ -1,0 +1,59 @@
+'''
+Created on 10 de ago de 2017
+
+@author: Wesley
+'''
+from osgeo import gdal,ogr
+import numpy as np
+import matplotlib.pyplot as plt
+
+
+
+''' Abrindo arquivo SHP do limite do ACRE '''
+
+acre_lm = ogr.Open("D:/acre_lm.shp")
+acre_ly = acre_lm.GetLayer()
+[xmax,xmin,ymax,ymin] = acre_ly.GetExtent()
+
+# Descobrindo os limites do BBox
+xmax = acre_bbox[0]
+xmin = acre_bbox[1]
+ymax = acre_bbox[2]
+ymin = acre_bbox[3]
+print("Xmax:{0:0.2f} \tXmin:{1:0.2f} \nYmax:{2:0.2f} \tYmin:{3:0.2f}".format(xmax,xmin,ymax,ymin)
+
+
+
+''' Descobrindo os Limites dos arquivos Raster'''
+
+nomearquivo = "D:/AMAZONIA_2000.tif" 
+
+#Importanto os dados
+raster = gdal.Open(nomearquivo)
+
+# Encontrando os valores de BBox e resolução
+[xinic,resx,rotax,yinic,rotay,resy] = raster.GetGeoTransform()
+xinic = raster_bbox[0]
+yinic = raster_bbox[3]
+resx = raster_bbox[1]
+resy = raster_bbox[5]
+
+print("Xinic:{0:0.2f} \tResX:{1:0.6f} \nYinic:{2:0.2f} \tResY:{3:0.6f}".format(xinic,resx,yinic,resy))
+
+
+''' Delimitando o BBOx para corte '''
+ncol = abs(int((xinic - xmax) / resx))
+nrow = abs(int((yinic - ymax) /resy))
+
+qtcol = abs(int((xmax-xmin)/resx))
+qtrow = abs(int((ymax-ymin)/resy))
+
+print("Retangulo envolvente inicia na linha {0} e coluna {1}, com offset de {2} em X e {3} em Y".format(nrow,ncol,qtcol,qtrow))
+
+
+''' Cortando Arquivos do MapBiomas '''
+
+mapbioma = raster.ReadAsArray(xoff=nrow,yoff=ncol,xsize=qtcol,ysize=qtrow) #lê o arquivo como um array
+
+
+
