@@ -57,7 +57,7 @@ tif = [a for a in arq if a.endswith(".tif")] #obtem apenas os arquivos .tif
 
 
 # Alocação de memoria 
-np_floresta = np.zeros(((ny*nx)+1,len(tif)), dtype=float)
+np_floresta = np.zeros(((ny*nx),len(tif)), dtype=float)
 np_floresta.fill(np.nan)
 
 # Para cada ano o ID da Floresta muda, como os arquivos estão 
@@ -80,7 +80,6 @@ for i in range(len(tif)):
     # Loop de calculo de porcentagem por grid
     for r in range(0,rmax+1,1): # Numero de colunas obtidos da nx da grade
         for c in range(0,cmax+1,1):# Numero de linhas obtidos da ny da grade
-            k+=1
             if r != rmax  and c != cmax :
                 kri = tgc*r
                 krf = (tgc*(r+1))-1
@@ -94,7 +93,7 @@ for i in range(len(tif)):
                     np_floresta[k,i]=np.nan
                 else:
                     np_floresta[k,i] = round(float(a)/float(b2),6)
-                print("Pixel [{0},{1}] \n Celula [{3}:{4}, {5}:{6}] = \tvalor {2}".format(r,c,0,kri,krf,kci,kcf))
+                print("Pixel [{0},{1}] \n Celula [{3}:{4}, {5}:{6}] = \tvalor {2}".format(r,c,np_floresta[k,i],kri,krf,kci,kcf))
             
             elif r == rmax and c !=cmax:
                 kri = tgc*rmax
@@ -109,7 +108,7 @@ for i in range(len(tif)):
                     np_floresta[k,i]=np.nan
                 else:
                     np_floresta[k,i] = round(float(a)/float(b2),6)
-                print("Pixel [{0},{1}] \n Celula [{3}:{4}, {5}:{6}] = \tvalor {2}".format(r,c,0,kri,krf,kci,kcf))   
+                print("Pixel [{0},{1}] \n Celula [{3}:{4}, {5}:{6}] = \tvalor {2}".format(r,c,np_floresta[k,i],kri,krf,kci,kcf))   
             
             elif r!=rmax and c == cmax:
                 kri = (tgc*r)
@@ -120,7 +119,7 @@ for i in range(len(tif)):
                 b = cobertura[kri:krf,kci:kcf]
                 b1 = np.where(b==255,0,b)
                 b2 = np.count_nonzero(b1)
-                print("Pixel [{0},{1}] \n Celula [{3}:{4}, {5}:{6}] = \tvalor {2}".format(r,c,0,kri,krf,kci,kcf))
+                print("Pixel [{0},{1}] \n Celula [{3}:{4}, {5}:{6}] = \tvalor {2}".format(r,c,np_floresta[k,i],kri,krf,kci,kcf))
                 
             elif r == rmax and c == cmax:
                 [kri,krf,kci,kcf] = (tgc*rmax,yfin,tgc*cmax,xfin)
@@ -132,14 +131,14 @@ for i in range(len(tif)):
                     np_floresta[k,i]=np.nan
                 else:
                     np_floresta[k,i] = round(float(a)/float(b2),6)
-                print("Pixel [{0},{1}] \n Celula [{3}:{4}, {5}:{6}] = \tvalor {2}".format(r,c,0,kri,krf,kci,kcf))     
-                
+                print("Pixel [{0},{1}] \n Celula [{3}:{4}, {5}:{6}] = \tvalor {2}".format(r,c,np_floresta[k,i],kri,krf,kci,kcf))     
+            k+=1    
             
         
-            #print("Pixel [{0},{1}] \n Celula [{3}:{4}, {5}:{6}] = \tvalor {2}".format(r,c,np_floresta[r,c],kri,krf,kci,kcf))
     print(tif[i])
 
-np.savetxt(r"D:\TESTE\np_floresta.csv",np_floresta,delimiter=";")
+cabeca = ("2004;2008;2010;2012;2014")
+np.savetxt(r"D:\TESTE\np_floresta.csv",np_floresta,delimiter=";",header=cabeca)
 
 
 ## Calculando as regressões para cada celula
