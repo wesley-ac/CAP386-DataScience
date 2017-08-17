@@ -52,12 +52,12 @@ raster = None # Fecha o arquivo raster aberto
 # Loop para todos os outros arquivos da pasta
 import os
 
-arq = os.listdir ("./TerraClass")
+arq = os.listdir (r"D:\TESTE\TerraClass")
 tif = [a for a in arq if a.endswith(".tif")] #obtem apenas os arquivos .tif
 
 
 # Alocação de memoria 
-np_floresta = np.zeros(((ny)*(nx),len(tif)), dtype=float)
+np_floresta = np.zeros(((ny*nx)+1,len(tif)), dtype=float)
 np_floresta.fill(np.nan)
 
 # Para cada ano o ID da Floresta muda, como os arquivos estão 
@@ -139,7 +139,7 @@ for i in range(len(tif)):
             #print("Pixel [{0},{1}] \n Celula [{3}:{4}, {5}:{6}] = \tvalor {2}".format(r,c,np_floresta[r,c],kri,krf,kci,kcf))
     print(tif[i])
 
-np.savetxt("np_floresta.csv",np_floresta,delimiter=";")
+np.savetxt(r"D:\TESTE\np_floresta.csv",np_floresta,delimiter=";")
 
 
 ## Calculando as regressões para cada celula
