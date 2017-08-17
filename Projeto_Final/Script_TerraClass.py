@@ -128,3 +128,30 @@ for i in range(len(tif)):
 
 np.savetxt("np_floresta.csv",np_floresta,delimiter=";")
 
+
+## Calculando as regressões para cada celula
+
+from scipy.stats import linregress
+
+
+x = (2004,2008,2010,2012,2014)
+y = list(np_floresta[5869])
+
+m, b, R, p, SEm = linregress(x, y)
+# m -declive; b: ordenada na origem; R: coeficiente de correlação (de Pearson)
+# p: p-value do teste F em que H0: y = const, independente de x
+# SEm: erro padrão do declive
+
+regressao = np.zeros((len(np_floresta),3))
+
+for i in range(len(np_floresta)):
+    y = list(np_floresta[i,])
+    m, b, R, p, SEm = linregress(x, y)
+    regressao[i,0] = m
+    regressao[i,1] = R
+    regressao[i,2] = p
+
+cabeca = ("2004;2008;2010;2012;2014;decliv;r2;p-val")
+np.savetxt("floresta_regressao.csv",np.concatenate((np_floresta,regressao),1),header=cabeca,delimiter=";")
+
+
