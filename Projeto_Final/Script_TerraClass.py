@@ -2,6 +2,9 @@
 """
 Created on Thu Aug 10 21:24:32 2017
 
+Script para os dados do TerraClass 
+
+
 @author: MONGE
 """
 
@@ -13,7 +16,7 @@ import matplotlib.pyplot as plt
 
 ''' Abrindo arquivo SHP do limite do ACRE '''
 
-acre_lm = ogr.Open("./Shp/Acre_LM.shp")
+acre_lm = ogr.Open(r"D:\TESTE\Acre_LM.shp")
 acre_ly = acre_lm.GetLayer()
 
 # Descobrindo os limites do BBox
@@ -23,23 +26,25 @@ print("Xmax:{0:0.4f} \tXmin:{1:0.4f} \nYmax:{2:0.4f} \tYmin:{3:0.4f}".format(xma
 
 
 #''' Descobrindo os Limites dos arquivos Raster '''
-nomearquivo = "./TerraClass/AC_2004_RASTER.tif"
+nomearquivo = r"D:\TESTE\TerraClass\AC_2004_RASTER.tif"
 
 #Importanto os dados
 raster = gdal.Open(nomearquivo)
 
 # Encontrando os valores de BBox e resolução
 [xinic,resx,rotax,yinic,rotay,resy] = raster.GetGeoTransform()
+xfin = raster.RasterXSize
+yfin = raster.RasterYSize
 print("Xinic:{0:0.4f} \tResX:{1:0.6f} \nYinic:{2:0.4f} \tResY:{3:0.6f}".format(xinic,resx,yinic,resy))
-print("{0} Linhas e {1} Colunas".format(raster.RasterXSize,raster.RasterYSize))
+print("{0} Linhas e {1} Colunas".format(xfin,yfin))
 
 
 ''' Obtendo parametros para gerar a Grade Celular '''
 tgc = 200 # tamanho da grade celular retangular
 dx = (resx*tgc) # grade de aproximadamente 12 km, por isso 400 pixel
 dy = abs(resy*tgc)
-nx = int(abs((xmax-xmin)/dx)) # obtendo a quantidade de celulas a ser gerada
-ny = int(abs((ymax-ymin)/dy))
+nx = int(abs((xmax-xmin)/dx))+1 # obtendo a quantidade de celulas a ser gerada
+ny = int(abs((ymax-ymin)/dy))+1
 print("Grade celular de {0} por {1}".format(ny,nx))
 
 raster = None # Fecha o arquivo raster aberto
@@ -52,7 +57,7 @@ tif = [a for a in arq if a.endswith(".tif")] #obtem apenas os arquivos .tif
 
 
 # Alocação de memoria 
-np_floresta = np.zeros(((ny+1)*(nx+1)+1,len(tif)), dtype=float)
+np_floresta = np.zeros(((ny)*(nx),len(tif)), dtype=float)
 np_floresta.fill(np.nan)
 
 # Para cada ano o ID da Floresta muda, como os arquivos estão 
@@ -60,7 +65,7 @@ np_floresta.fill(np.nan)
 florestaID = [4,11,10,12,5]
 
 for i in range(len(tif)):
-    nomearquivo = "./TerraClass/"+tif[i]
+    nomearquivo = (r"D:\TESTE\TerraClass\{0}".format(tif[i]))
     raster = gdal.Open(nomearquivo)
 
     ''' Cortando Arquivos do MapBiomas '''
@@ -70,50 +75,17 @@ for i in range(len(tif)):
 
     raster = None # Fechar o arquivo raster aberto
     k=0
+    rmax = np.max(range(0,ny,1))
+    cmax = np.max(range(0,nx,1)) 
     # Loop de calculo de porcentagem por grid
-    for r in range(0,ny+1,1): # Numero de colunas obtidos da nx da grade
-        for c in range(0,nx+1,1):# Numero de linhas obtidos da ny da grade
+    for r in range(0,rmax+1,1): # Numero de colunas obtidos da nx da grade
+        for c in range(0,cmax+1,1):# Numero de linhas obtidos da ny da grade
             k+=1
-            if r == 0 and c == 0:
-                [kri,krf,kci,kcf] = (0,tgc-1,0,tgc-1)
-                a = np.nansum(floresta[0:tgc-1,0:tgc-1])
-                b = cobertura[0:tgc-1,0:tgc-1]
-                b1 = np.where(b==255,0,b)
-                b2 = np.count_nonzero(b1)
-                if b2 ==0:
-                    np_floresta[k,i]=np.nan
-                else:
-                    np_floresta[k,i] = round(float(a)/float(b2),6)
-                
-            elif r == 0 and c != 0:
-                kci = (tgc*c)
-                kcf = (tgc*(c+1))-1
-                a = np.nansum(floresta[0:tgc-1,kci:kcf])
-                b = cobertura[0:tgc-1,kci:kcf]
-                b1 = np.where(b==255,0,b)
-                b2 = np.count_nonzero(b1)
-                if b2 ==0:
-                    np_floresta[k,i]=np.nan
-                else:
-                    np_floresta[k,i] = round(float(a)/float(b2),6)
-                
-            elif r != 0 and c == 0:
-                kri = (tgc*r)
+            if r != rmax  and c != cmax :
+                kri = tgc*r
                 krf = (tgc*(r+1))-1
-                a = np.nansum(floresta[kri:krf,0:tgc-1])
-                b = cobertura[kri:krf,0:tgc-1]
-                b1 = np.where(b==255,0,b)
-                b2 = np.count_nonzero(b1)
-                if b2 ==0:
-                    np_floresta[k,i]=np.nan
-                else:
-                    np_floresta[k,i] = round(float(a)/float(b2),6)
-                
-            elif r != 0 and c != 0:
-                kci = (tgc*c)
+                kci = tgc*c
                 kcf = (tgc*(c+1))-1
-                kri = (tgc*r)
-                krf = (tgc*(r+1))-1
                 a = np.nansum(floresta[kri:krf,kci:kcf])
                 b = cobertura[kri:krf,kci:kcf]
                 b1 = np.where(b==255,0,b)
@@ -122,6 +94,47 @@ for i in range(len(tif)):
                     np_floresta[k,i]=np.nan
                 else:
                     np_floresta[k,i] = round(float(a)/float(b2),6)
+                print("Pixel [{0},{1}] \n Celula [{3}:{4}, {5}:{6}] = \tvalor {2}".format(r,c,0,kri,krf,kci,kcf))
+            
+            elif r == rmax and c !=cmax:
+                kri = tgc*rmax
+                krf = yfin
+                kci = (tgc*c)
+                kcf = (tgc*(c+1))-1
+                a = np.nansum(floresta[kri:krf,kci:kcf])
+                b = cobertura[kri:krf,kci:kcf]
+                b1 = np.where(b==255,0,b)
+                b2 = np.count_nonzero(b1)
+                if b2 ==0:
+                    np_floresta[k,i]=np.nan
+                else:
+                    np_floresta[k,i] = round(float(a)/float(b2),6)
+                print("Pixel [{0},{1}] \n Celula [{3}:{4}, {5}:{6}] = \tvalor {2}".format(r,c,0,kri,krf,kci,kcf))   
+            
+            elif r!=rmax and c == cmax:
+                kri = (tgc*r)
+                krf = (tgc*(r+1))-1
+                kci = tgc*cmax
+                kcf = xfin 
+                a = np.nansum(floresta[kri:krf,kci:kcf])
+                b = cobertura[kri:krf,kci:kcf]
+                b1 = np.where(b==255,0,b)
+                b2 = np.count_nonzero(b1)
+                print("Pixel [{0},{1}] \n Celula [{3}:{4}, {5}:{6}] = \tvalor {2}".format(r,c,0,kri,krf,kci,kcf))
+                
+            elif r == rmax and c == cmax:
+                [kri,krf,kci,kcf] = (tgc*rmax,yfin,tgc*cmax,xfin)
+                a = np.nansum(floresta[kri:krf,kci:krf])
+                b = cobertura[kri:krf,kci:krf]
+                b1 = np.where(b==255,0,b)
+                b2 = np.count_nonzero(b1)
+                if b2 ==0:
+                    np_floresta[k,i]=np.nan
+                else:
+                    np_floresta[k,i] = round(float(a)/float(b2),6)
+                print("Pixel [{0},{1}] \n Celula [{3}:{4}, {5}:{6}] = \tvalor {2}".format(r,c,0,kri,krf,kci,kcf))     
+                
+            
         
             #print("Pixel [{0},{1}] \n Celula [{3}:{4}, {5}:{6}] = \tvalor {2}".format(r,c,np_floresta[r,c],kri,krf,kci,kcf))
     print(tif[i])
