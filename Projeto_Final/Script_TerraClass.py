@@ -28,7 +28,7 @@ nomearquivo = "./TerraClass/AC_2004_RASTER.tif"
 #Importanto os dados
 raster = gdal.Open(nomearquivo)
 
-# Encontrando os valores de BBox e resoluÃ§Ã£o
+# Encontrando os valores de BBox e resolução
 [xinic,resx,rotax,yinic,rotay,resy] = raster.GetGeoTransform()
 print("Xinic:{0:0.4f} \tResX:{1:0.6f} \nYinic:{2:0.4f} \tResY:{3:0.6f}".format(xinic,resx,yinic,resy))
 print("{0} Linhas e {1} Colunas".format(raster.RasterXSize,raster.RasterYSize))
@@ -51,24 +51,29 @@ arq = os.listdir ("./TerraClass")
 tif = [a for a in arq if a.endswith(".tif")] #obtem apenas os arquivos .tif
 
 
-# AlocaÃ§Ã£o de memoria 
-np_floresta = np.zeros((len(tif),ny+1,nx+1), dtype=float)
+# Alocação de memoria 
+np_floresta = np.zeros(((ny+1)*(nx+1)+1,len(tif)), dtype=float)
 np_floresta.fill(np.nan)
+
+# Para cada ano o ID da Floresta muda, como os arquivos estão 
+# em ordem cronologica gera-se uma lista com os ID sequenciados
+florestaID = [4,11,10,12,5]
 
 for i in range(len(tif)):
     nomearquivo = "./TerraClass/"+tif[i]
     raster = gdal.Open(nomearquivo)
 
     ''' Cortando Arquivos do MapBiomas '''
-    cobertura = raster.ReadAsArray() #lÃª o arquivo como um array
-    floresta = np.where(cobertura==4,1,0 )
+    cobertura = raster.ReadAsArray() #lê o arquivo como um array
+    floresta = np.where(cobertura==florestaID[i],1,0 )
 #    vegsec = np.where(cobertura == 12, 1,0)
 
     raster = None # Fechar o arquivo raster aberto
-
+    k=0
     # Loop de calculo de porcentagem por grid
     for r in range(0,ny+1,1): # Numero de colunas obtidos da nx da grade
-        for c in range(0,nx+1,1): # Numero de linhas obtidos da ny da grade
+        for c in range(0,nx+1,1):# Numero de linhas obtidos da ny da grade
+            k+=1
             if r == 0 and c == 0:
                 [kri,krf,kci,kcf] = (0,tgc-1,0,tgc-1)
                 a = np.nansum(floresta[0:tgc-1,0:tgc-1])
@@ -76,9 +81,9 @@ for i in range(len(tif)):
                 b1 = np.where(b==255,0,b)
                 b2 = np.count_nonzero(b1)
                 if b2 ==0:
-                    np_floresta[i,r,c]=np.nan
+                    np_floresta[k,i]=np.nan
                 else:
-                    np_floresta[i,r,c] = float(a)/float(b2)
+                    np_floresta[k,i] = round(float(a)/float(b2),6)
                 
             elif r == 0 and c != 0:
                 kci = (tgc*c)
@@ -88,9 +93,9 @@ for i in range(len(tif)):
                 b1 = np.where(b==255,0,b)
                 b2 = np.count_nonzero(b1)
                 if b2 ==0:
-                    np_floresta[i,r,c]=np.nan
+                    np_floresta[k,i]=np.nan
                 else:
-                    np_floresta[i,r,c] = float(a)/float(b2)
+                    np_floresta[k,i] = round(float(a)/float(b2),6)
                 
             elif r != 0 and c == 0:
                 kri = (tgc*r)
@@ -100,9 +105,9 @@ for i in range(len(tif)):
                 b1 = np.where(b==255,0,b)
                 b2 = np.count_nonzero(b1)
                 if b2 ==0:
-                    np_floresta[i,r,c]=np.nan
+                    np_floresta[k,i]=np.nan
                 else:
-                    np_floresta[i,r,c] = float(a)/float(b2)
+                    np_floresta[k,i] = round(float(a)/float(b2),6)
                 
             elif r != 0 and c != 0:
                 kci = (tgc*c)
@@ -114,36 +119,12 @@ for i in range(len(tif)):
                 b1 = np.where(b==255,0,b)
                 b2 = np.count_nonzero(b1)
                 if b2 ==0:
-                    np_floresta[i,r,c]=np.nan
+                    np_floresta[k,i]=np.nan
                 else:
-                    np_floresta[i,r,c] = float(a)/float(b2)
+                    np_floresta[k,i] = round(float(a)/float(b2),6)
         
             #print("Pixel [{0},{1}] \n Celula [{3}:{4}, {5}:{6}] = \tvalor {2}".format(r,c,np_floresta[r,c],kri,krf,kci,kcf))
     print(tif[i])
 
-
-f, axarr = plt.subplots(len(tif), sharex=True)
-for i in range(len(tif)):
-    axarr[i].plt.imshow(np_floresta[i])
-    axarr[i].set_title(tif[i])
-
-f, (ax1, ax2,ax3,ax4,ax5) = plt.subplots(5, 1, sharex=True)
-ax1.imshow(np_floresta[0])
-ax1.set_title(tif[0])
-ax2.imshow(np_floresta[1])
-ax2.set_title(tif[1])
-ax3.imshow(np_floresta[2])
-ax3.set_title(tif[2])
-ax4.imshow(np_floresta[3])
-ax4.set_title(tif[3])
-ax5.imshow(np_floresta[4])
-ax5.set_title(tif[4])
-ax5.colorbar()
-
-
-
-
-
-
-
+np.savetxt("np_floresta.csv",np_floresta,delimiter=";")
 
