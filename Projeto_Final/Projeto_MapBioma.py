@@ -1,12 +1,3 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Thu Aug 10 21:24:32 2017
-
-Script para os dados do MapBiomas
-
-@author: MONGE
-"""
-
 from osgeo import gdal,ogr
 import numpy as np
 import matplotlib.pyplot as plt
@@ -22,10 +13,11 @@ acre_ly = acre_lm.GetLayer()
 [xmin,xmax,ymax,ymin] = acre_ly.GetExtent()
 print("Xmax:{0:0.4f} \tXmin:{1:0.4f} \nYmax:{2:0.4f} \tYmin:{3:0.4f}".format(xmax,xmin,ymax,ymin))
 
-
+acre_lm=None
+acre_ly=None
 
 #''' Descobrindo os Limites dos arquivos Raster '''
-nomearquivo = r"D:\TESTE\MapBioma\AMAZONIA_2001.tif"
+nomearquivo = r"D:\TESTE\MapBioma\AMAZONIA_2000.tif"
 
 #Importanto os dados
 raster = gdal.Open(nomearquivo)
@@ -38,10 +30,10 @@ print("{0} Linhas e {1} Colunas".format(raster.RasterXSize,raster.RasterYSize))
 
 ''' Obtendo parametros para gerar a Grade Celular '''
 tgc = 200 # tamanho da grade celular retangular
-dx = (resx*tgc) # grade de aproximadamente 12 km, por isso 400 pixel
+dx = (resx*tgc) # grade de aproximadamente 6 km, por isso 200 pixel
 dy = abs(resy*tgc)
-nx = int(abs((xmax-xmin)/dx)) # obtendo a quantidade de celulas a ser gerada
-ny = int(abs((ymax-ymin)/dy))
+nx = int(abs((xmax-xmin)/dx))+1 # obtendo a quantidade de celulas a ser gerada
+ny = int(abs((ymax-ymin)/dy))+1
 print("Grade celular de {0} por {1}".format(ny,nx))
 
 raster = None # Fecha o arquivo raster aberto
@@ -50,6 +42,7 @@ ncol = int((xmin-xinic) / resx) #Numero da linha onde inicia
 nrow = int((ymin-yinic) / resy) #Numero da coluna onde inicia
 qtcol = (nx+1)*tgc #Quantidade de pixel em colunas que irá buscar, utilizando o numero de celulas criadas
 qtrow = (ny+1)*tgc #Quantidade de pixel em linha que irá buscar, utilizando o numero de celulas criadas
+print("Retangulo envolvente inicia na linha {0} e coluna {1}, com offset de {2} em X e {3} em Y".format(nrow,ncol,qtcol,qtrow))
 
 # Loop para todos os outros arquivos da pasta
 import os
@@ -59,106 +52,35 @@ tif = [a for a in arq if a.endswith(".tif")] #obtem apenas os arquivos .tif
 
 
 # Alocação de memoria 
-np_floresta = np.zeros(((ny+1)*(nx+1)+1,len(tif)), dtype=float)
+np_floresta = np.zeros(((ny*nx)+1,len(tif)), dtype=float)
 np_floresta.fill(np.nan)
 
-# Para cada ano o ID da Floresta muda, como os arquivos estão 
-# em ordem cronologica gera-se uma lista com os ID sequenciados
-
-for i in range(len(tif)):
+rmax = np.max(range(0,ny,1))
+cmax = np.max(range(0,nx,1)) 
+    
+k=0
+    
+for i in tif:
     nomearquivo = (r"D:\TESTE\MapBioma\{0}".format(tif[i]))
     raster = gdal.Open(nomearquivo)
-    mapbioma = raster.ReadAsArray(xoff=nrow,yoff=ncol,xsize=qtcol,ysize=qtrow).astype(np.float)
-
-    ''' Cortando Arquivos do MapBiomas '''
-    floresta = np.where(((mapbioma == 3)| (mapbioma==4)| (mapbioma==5)| (mapbioma==6)),1,0 )
-    raster = None # Fechar o arquivo raster aberto
-
-    k=0
-    # Loop de calculo de porcentagem por grid
-    for r in range(0,ny+1,1): # Numero de colunas obtidos da nx da grade
-        for c in range(0,nx+1,1):# Numero de linhas obtidos da ny da grade
-            k+=1
-            if r == 0 and c == 0:
-                [kri,krf,kci,kcf] = (0,tgc-1,0,tgc-1)
-                a = np.nansum(floresta[0:tgc-1,0:tgc-1])
-                b = mapbioma[0:tgc-1,0:tgc-1]
-                b1 = np.where(b==255,0,b)
-                b2 = np.count_nonzero(b1)
-                if b2 ==0:
-                    np_floresta[k,i]=np.nan
-                else:
-                    np_floresta[k,i] = round(float(a)/float(b2),6)
-                
-            elif r == 0 and c != 0:
-                kci = (tgc*c)
-                kcf = (tgc*(c+1))-1
-                a = np.nansum(floresta[0:tgc-1,kci:kcf])
-                b = mapbioma[0:tgc-1,kci:kcf]
-                b1 = np.where(b==255,0,b)
-                b2 = np.count_nonzero(b1)
-                if b2 ==0:
-                    np_floresta[k,i]=np.nan
-                else:
-                    np_floresta[k,i] = round(float(a)/float(b2),6)
-                
-            elif r != 0 and c == 0:
-                kri = (tgc*r)
-                krf = (tgc*(r+1))-1
-                a = np.nansum(floresta[kri:krf,0:tgc-1])
-                b = mapbioma[kri:krf,0:tgc-1]
-                b1 = np.where(b==255,0,b)
-                b2 = np.count_nonzero(b1)
-                if b2 ==0:
-                    np_floresta[k,i]=np.nan
-                else:
-                    np_floresta[k,i] = round(float(a)/float(b2),6)
-                
-            elif r != 0 and c != 0:
-                kci = (tgc*c)
-                kcf = (tgc*(c+1))-1
-                kri = (tgc*r)
-                krf = (tgc*(r+1))-1
-                a = np.nansum(floresta[kri:krf,kci:kcf])
-                b = mapbioma[kri:krf,kci:kcf]
-                b1 = np.where(b==255,0,b)
-                b2 = np.count_nonzero(b1)
-                if b2 ==0:
-                    np_floresta[k,i]=np.nan
-                else:
-                    np_floresta[k,i] = round(float(a)/float(b2),6)
+    
+    for r in range(0,rmax+1,1): # Numero de colunas obtidos da nx da grade
+        for c in range(0,cmax+1,1):# Numero de linhas obtidos da ny da grade
+            pxr = nrow*(r+1) 
+            pxc = ncol*(c+1)
+            cobertura = raster.ReadAsArray(xoff=pxr,yoff=pxc,xsize=tgc,ysize=tgc).astype(np.float)
+            floresta = np.where(((cobertura == 3)| (cobertura==4)| (cobertura==5)| (cobertura==6)),1.,0 )
+            a = floresta.sum()
+            b = np.count_nonzero(cobertura)
+            if b ==0:
+                np_floresta[k,i]=np.nan
+            else:
+                np_floresta[k,i] = round(float(a)/float(b),6)
+                print("Pixel [{0},{1}] \n Celula - xinix:{3}, yinic:{4}] = \tvalor {2}".format(r,c,np_floresta[k,i],pxr,pxc))
+               
+            k+=1    
+            
         
-            #print("Pixel [{0},{1}] \n Celula [{3}:{4}, {5}:{6}] = \tvalor {2}".format(r,c,np_floresta[r,c],kri,krf,kci,kcf))
-    floresta = None
-    mapbioma = None
     print(tif[i])
 
 np.savetxt("np_floresta.csv",np_floresta,delimiter=";")
-
-
-## Calculando as regressões para cada celula
-
-#from scipy.stats import linregress
-
-
-#x = (2004,2008,2010,2012,2014)
-#y = list(np_floresta[5869])
-
-#m, b, R, p, SEm = linregress(x, y)
-# m -declive; b: ordenada na origem; R: coeficiente de correlação (de Pearson)
-# p: p-value do teste F em que H0: y = const, independente de x
-# SEm: erro padrão do declive
-
-#regressao = np.zeros((len(np_floresta),3))
-
-#for i in range(len(np_floresta)):
-#    y = list(np_floresta[i,])
-#    m, b, R, p, SEm = linregress(x, y)
-#    regressao[i,0] = m
-#    regressao[i,1] = R
-#    regressao[i,2] = p
-
-#cabeca = ("2004;2008;2010;2012;2014;decliv;r2;p-val")
-#np.savetxt("floresta_regressao.csv",np.concatenate((np_floresta,regressao),1),header=cabeca,delimiter=";")
-
-
