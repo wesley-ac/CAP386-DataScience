@@ -63,6 +63,10 @@ tif = [a for a in arq if a.endswith(".tif")] #obtem apenas os arquivos .tif
 # Alocação de memoria 
 np_floresta = np.zeros(((ny*nx)+1,len(tif)), dtype=float)
 np_floresta.fill(np.nan)
+np_vegsec = np.zeros(((ny*nx)+1,len(tif)), dtype=float)
+np_vegsec.fill(np.nan)
+np_agric = np.zeros(((ny*nx)+1,len(tif)), dtype=float)
+np_agric.fill(np.nan)
 
 rmax = np.max(range(0,ny,1))
 cmax = np.max(range(0,nx,1)) 
@@ -79,12 +83,20 @@ for i in range(len(tif)):
             pxc = ncol+((c+1)*tgc)
             cobertura = raster.ReadAsArray(xoff=pxr,yoff=pxc,xsize=tgc,ysize=tgc).astype(np.float)
             floresta = np.where(((cobertura == 3)| (cobertura==4)| (cobertura==5)| (cobertura==6)),1.,0 )
-            a = floresta.sum()
+            vegsec = np.where(((cobertura == 7)| (cobertura==8)),1.,0 )
+            agric = np.where(((cobertura == 15)| (cobertura==19)| (cobertura==20)| (cobertura==21)| (cobertura==28)),1.,0 )
+            flo = floresta.sum()
+            vegs = vegsec.sum()
+            ag = agric.sum()
             b = np.count_nonzero(cobertura)
             if b ==0:
-                np_floresta[k,i]=np.nan
+                np_floresta[k,i] = np.nan
+                np_vegsec[k,i] = np.nan
+                np_agric[k,i] = np.nan
             else:
-                np_floresta[k,i] = round(float(a)/float(b),6)
+                np_floresta[k,i] = round(float(flo)/float(b),6)
+                np_vegsec[k,i] = round(float(vegs)/float(b),6)
+                np_agric[k,i] = round(float(ag)/float(b),6)
                 print("Pixel [{0},{1}] \n Celula - xinix:{3}, yinic:{4}] = \tvalor {2}".format(r,c,np_floresta[k,i],pxr,pxc))
                
             k+=1    
@@ -92,7 +104,9 @@ for i in range(len(tif)):
         
     print(tif[i])
 
-np.savetxt("np_floresta.csv",np_floresta,delimiter=";")
+np.savetxt(r"D:\Teste\np_floresta_MpBioma.csv",np_floresta,delimiter=";")
+np.savetxt(r"D:\Teste\np_vegsec_MpBioma.csv",np_floresta,delimiter=";")
+np.savetxt(r"D:\Teste\np_agric_MpBioma.csv",np_floresta,delimiter=";")
 
 
 ## Calculando as regressões para cada celula
