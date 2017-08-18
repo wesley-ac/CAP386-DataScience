@@ -1,6 +1,15 @@
+# -*- coding: utf-8 -*-
+"""
+Created on Thu Aug 10 21:24:32 2017
+
+Script para os dados do MapBiomas
+
+@author: MONGE
+"""
+
 from osgeo import gdal,ogr
 import numpy as np
-import matplotlib.pyplot as plt
+#import matplotlib.pyplot as plt
 
 
 
@@ -60,14 +69,14 @@ cmax = np.max(range(0,nx,1))
     
 k=0
     
-for i in tif:
+for i in range(len(tif)):
     nomearquivo = (r"D:\TESTE\MapBioma\{0}".format(tif[i]))
     raster = gdal.Open(nomearquivo)
     
     for r in range(0,rmax+1,1): # Numero de colunas obtidos da nx da grade
         for c in range(0,cmax+1,1):# Numero de linhas obtidos da ny da grade
-            pxr = nrow*(r+1) 
-            pxc = ncol*(c+1)
+            pxr = nrow+((r+1)*tgc) 
+            pxc = ncol+((c+1)*tgc)
             cobertura = raster.ReadAsArray(xoff=pxr,yoff=pxc,xsize=tgc,ysize=tgc).astype(np.float)
             floresta = np.where(((cobertura == 3)| (cobertura==4)| (cobertura==5)| (cobertura==6)),1.,0 )
             a = floresta.sum()
@@ -84,3 +93,31 @@ for i in tif:
     print(tif[i])
 
 np.savetxt("np_floresta.csv",np_floresta,delimiter=";")
+
+
+## Calculando as regressões para cada celula
+
+#from scipy.stats import linregress
+
+
+#x = (2004,2008,2010,2012,2014)
+#y = list(np_floresta[5869])
+
+#m, b, R, p, SEm = linregress(x, y)
+# m -declive; b: ordenada na origem; R: coeficiente de correlação (de Pearson)
+# p: p-value do teste F em que H0: y = const, independente de x
+# SEm: erro padrão do declive
+
+#regressao = np.zeros((len(np_floresta),3))
+
+#for i in range(len(np_floresta)):
+#    y = list(np_floresta[i,])
+#    m, b, R, p, SEm = linregress(x, y)
+#    regressao[i,0] = m
+#    regressao[i,1] = R
+#    regressao[i,2] = p
+
+#cabeca = ("2004;2008;2010;2012;2014;decliv;r2;p-val")
+#np.savetxt("floresta_regressao.csv",np.concatenate((np_floresta,regressao),1),header=cabeca,delimiter=";")
+
+
