@@ -71,12 +71,11 @@ np_agric.fill(np.nan)
 rmax = np.max(range(0,ny,1))
 cmax = np.max(range(0,nx,1)) 
     
-k=0
-    
+   
 for i in range(len(tif)):
     nomearquivo = (r"D:\TESTE\MapBioma\{0}".format(tif[i]))
     raster = gdal.Open(nomearquivo)
-    
+    k=0
     for r in range(0,rmax+1,1): # Numero de colunas obtidos da nx da grade
         for c in range(0,cmax+1,1):# Numero de linhas obtidos da ny da grade
             pxr = nrow+((r+1)*tgc) 
