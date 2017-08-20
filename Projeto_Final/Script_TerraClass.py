@@ -10,13 +10,13 @@ Script para os dados do TerraClass
 
 from osgeo import gdal,ogr
 import numpy as np
-import matplotlib.pyplot as plt
+#import matplotlib.pyplot as plt
 
 
 
 ''' Abrindo arquivo SHP do limite do ACRE '''
 
-acre_lm = ogr.Open(r"D:\TESTE\Acre_LM.shp")
+acre_lm = ogr.Open(r"D:\TESTE\Shp\Acre_LM.shp")
 acre_ly = acre_lm.GetLayer()
 
 # Descobrindo os limites do BBox
@@ -147,9 +147,9 @@ from scipy.stats import linregress
 
 
 x = (2004,2008,2010,2012,2014)
-y = list(np_floresta[5869])
+#y = list(np_floresta[5869])
 
-m, b, R, p, SEm = linregress(x, y)
+#m, b, R, p, SEm = linregress(x, y)
 # m -declive; b: ordenada na origem; R: coeficiente de correlação (de Pearson)
 # p: p-value do teste F em que H0: y = const, independente de x
 # SEm: erro padrão do declive
@@ -166,7 +166,11 @@ for i in range(len(np_floresta)):
 cabeca = ("2004;2008;2010;2012;2014;decliv;r2;p-val")
 np.savetxt("floresta_regressao.csv",np.concatenate((np_floresta,regressao),1),header=cabeca,delimiter=";")
 
-## Criando o arquivo de grade em shapefile
+''' Criando o Shapefile da Grade
+
+https://gis.stackexchange.com/questions/54119/creating-square-grid-polygon-shapefile-with-python
+
+'''
 from numpy import genfromtxt
 
 tudo = np.genfromtxt('floresta_regressao.csv', delimiter=';')
@@ -177,15 +181,15 @@ import shapefile as shp
 
 w = shp.Writer(shp.POLYGON)
 #w.autoBalance = 1
-w.field("ID",'N')
+w.field("GRADE",'C')
 w.field("F2004",'F',decimal=30)
 w.field("F2008",'F',decimal=30)
 w.field("F2010",'F',decimal=30)
 w.field("F2012",'F',decimal=30)
 w.field("F2014",'F',decimal=30)
-w.field("Fdecliv",'N',decimal=3)
-w.field("Fr2",'N',decimal=30)
-w.field("Fp_val",'N',decimal=30)
+w.field("decliv",'N',decimal=3)
+w.field("r2",'N',decimal=30)
+w.field("pval",'N',decimal=30)
 
 id=0
 k=0
@@ -200,15 +204,12 @@ for i in range(ny):
         vertices.append([min(xmin+dx*j,xmax),min(ymax-dy*(i+1),ymin)])
         parts.append(vertices)
         w.poly(parts)
-        w.record(ID=k,F2004 = np.round(np_floresta[k,0],6), F2008 = np.round(np_floresta[k,1],6), F2010 = np.round(np_floresta[k,2],6), F2012 = np.round(np_floresta[k,3],6), F2014 = np.round(np_floresta[k,4],6))
-        F2004 = np.round(np_floresta[k,0],6)
-        F2004 = np.round(np_floresta[k,0],6)
-        F2004 = np.round(np_floresta[k,0],6)
-        
+        w.record(GRADE=("R{0}C{1}".format(i,j)),F2004 = np.round(np_floresta[k,0],6), F2008 = np.round(np_floresta[k,1],6), F2010 = np.round(np_floresta[k,2],6), F2012 = np.round(np_floresta[k,3],6), F2014 = np.round(np_floresta[k,4],6), decliv = np.round(tudo[k,5],6), r2 = np.round(tudo[k,6],6), pval = np.round(tudo[k,7],6))
         id+=1
         k+=1
         print("Grade-Celular {0} criada".format(k))
 
-w.save("grade_celular")
+w.save("teste")
+
 
 
