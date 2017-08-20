@@ -166,4 +166,49 @@ for i in range(len(np_floresta)):
 cabeca = ("2004;2008;2010;2012;2014;decliv;r2;p-val")
 np.savetxt("floresta_regressao.csv",np.concatenate((np_floresta,regressao),1),header=cabeca,delimiter=";")
 
+## Criando o arquivo de grade em shapefile
+from numpy import genfromtxt
+
+tudo = np.genfromtxt('floresta_regressao.csv', delimiter=';')
+
+import shapefile as shp
+#import math
+
+
+w = shp.Writer(shp.POLYGON)
+#w.autoBalance = 1
+w.field("ID",'N')
+w.field("F2004",'F',decimal=30)
+w.field("F2008",'F',decimal=30)
+w.field("F2010",'F',decimal=30)
+w.field("F2012",'F',decimal=30)
+w.field("F2014",'F',decimal=30)
+w.field("Fdecliv",'N',decimal=3)
+w.field("Fr2",'N',decimal=30)
+w.field("Fp_val",'N',decimal=30)
+
+id=0
+k=0
+
+for i in range(ny):
+    for j in range(nx):
+        vertices = []
+        parts = []
+        vertices.append([min(xmin+dx*j,xmax),min(ymax-dy*i,ymin)])
+        vertices.append([min(xmin+dx*(j+1),xmax),min(ymax-dy*i,ymin)])
+        vertices.append([min(xmin+dx*(j+1),xmax),min(ymax-dy*(i+1),ymin)])
+        vertices.append([min(xmin+dx*j,xmax),min(ymax-dy*(i+1),ymin)])
+        parts.append(vertices)
+        w.poly(parts)
+        w.record(ID=k,F2004 = np.round(np_floresta[k,0],6), F2008 = np.round(np_floresta[k,1],6), F2010 = np.round(np_floresta[k,2],6), F2012 = np.round(np_floresta[k,3],6), F2014 = np.round(np_floresta[k,4],6))
+        F2004 = np.round(np_floresta[k,0],6)
+        F2004 = np.round(np_floresta[k,0],6)
+        F2004 = np.round(np_floresta[k,0],6)
+        
+        id+=1
+        k+=1
+        print("Grade-Celular {0} criada".format(k))
+
+w.save("grade_celular")
+
 
